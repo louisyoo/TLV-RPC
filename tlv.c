@@ -133,33 +133,35 @@ tlv_t* tlv_create(unsigned short t, unsigned short l, char *v)
     return cur;
 }
 
-void tlv_destroy(tlv_t *tlv)
+void tlv_destroy(tlv_t *head)
 {
-    tlv_t *child = NULL;
+    tlv_t *tlv = head;
     tlv_t *temp = NULL;
-    int tt = _tt_T(tlv->t);
-    
-    if(etlv==tt){
-        child = tlv->v.tlv;
-        while(child){
-            temp = child->_next;
-            tlv_destroy(child);
-            child = temp;
+        
+    while(tlv){
+        int tt = _tt_T(tlv->t);
+        temp = tlv->_next;
+        if(etlv==tt){
+            if(tlv->v.tlv){
+                tlv_destroy(tlv->v.tlv);
+                tlv->v.tlv=NULL;
+            }
         }
-    }
-    else if(estr==tt){
-        if(tlv->v.strValue){
-            __free(tlv->v.strValue);
-            tlv->v.strValue = NULL;
+        else if(estr==tt){
+            if(tlv->v.strValue){
+                __free(tlv->v.strValue);
+                tlv->v.strValue = NULL;
+            }
         }
-    }
-    else if(ebytes==tt){
-        if(tlv->v.bytesValue.b){
-            __free(tlv->v.bytesValue.b);
-            tlv->v.bytesValue.b = NULL;
-        }
-    }        
-    __free(tlv);
+        else if(ebytes==tt){
+            if(tlv->v.bytesValue.b){
+                __free(tlv->v.bytesValue.b);
+                tlv->v.bytesValue.b = NULL;
+            }
+        }        
+        __free(tlv);
+        tlv = temp;
+    }    
 }
 
 int tlv_gets(tlv_t *owner, unsigned short t, tlv_t* arr[], int n)
@@ -213,6 +215,7 @@ void tlv_rem(tlv_t **phead, tlv_t *cur)
             prev->_next=cur->_next;
         }
     }
+    cur->_next=NULL;
 }
 
 int tlv_update(tlv_t *cur, unsigned short l, char *v)
