@@ -1,2 +1,2 @@
 # TLV-RPC
-A TLV-Based Protocal Implemented By C Language
+A TLV-Based Protocol Implemented By C Language
